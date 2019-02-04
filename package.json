@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "repository": "https://github.com/teriba/riotToDo.git",
   "scripts": {
-    "start": "./node_modules/.bin/webpack-dev-server --inline --watch --hot --host 0.0.0.0 --colors -d --port 3030"
+    "start": "./node_modules/.bin/webpack-dev-server --inline --watch --hot --host 0.0.0.0 --colors -d --port 3000"
   },
   "keywords": [],
   "author": "Erik Bäckström",
