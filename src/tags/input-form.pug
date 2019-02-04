@@ -32,6 +32,7 @@ input-form
               this.opts.save_cb(this.text);
               this.text = '';
               this.refs.inputField.value = '' 
+              this.refs.inputField.focus();
           }
           e.preventDefault();
       }
