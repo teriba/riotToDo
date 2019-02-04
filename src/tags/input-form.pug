@@ -1,0 +1,37 @@
+
+input-form 
+  form(onsubmit="{add}").cyan.lighten-5
+    .inputarea
+      .input-field.inline
+        input(ref="inputField", id="newItem", type="text", onkeyup="{edit}") 
+        label(for="newItem") Add new Item...
+ 
+      a.btn-floating(class="{disabled: !this.text}" onclick="{add}")
+        i.material-icons add
+
+  style.
+    form{
+      padding-top: 1em;
+      display: flex;
+      justify-content: center;
+    }
+    #newItem{
+      font-size: 1.4rem;
+      margin-right: 1em;
+      width: 70vw;
+    }
+
+  script.
+      this.text = "";
+      this.edit = (e) => {
+          this.text = e.target.value;
+      }
+
+      this.add = (e) => {
+          if(this.text){
+              this.opts.save_cb(this.text);
+              this.text = '';
+              this.refs.inputField.value = '' 
+          }
+          e.preventDefault();
+      }

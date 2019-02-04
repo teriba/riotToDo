@@ -1,0 +1,132 @@
+app
+  header.z-depth-1
+    input-form(
+      visible="{true}"
+      onlostfocus="{todo.remove}"
+      save_cb="{todo.add}").
+
+    .switch
+      label 
+        | Edit        
+        input(type="checkbox", onclick="{todo.toggleEdit}" checked="{this.state.editMode}")
+        span.lever
+
+    .switch
+      label 
+        | Show finished        
+        input(type="checkbox", onclick="{todo.toggleShowCompleted}" checked="{this.state.showCompleted}")
+        span.lever
+  
+  main
+    item-list(
+      items="{state.items}"
+      toggle_complete_cb="{todo.toggleComplete}"
+      remove_item_cb="{todo.remove}"
+      move_item_cb="{todo.move}"
+      update_item_cb="{todo.update}"
+      edit_mode="{this.state.editMode}"
+      show_completed="{this.state.showCompleted}").
+
+  style.
+    .switch{
+      display: inline-block;
+      margin-left: 1em;
+      padding-bottom: 0.5em;
+      background-color: white;
+    }
+    .switch label .lever {
+          margin-left: 3px;
+    }
+    header{
+      z-index: 100;
+      width: 100vw;
+      height: 18vh;
+      background-color: white;
+    }
+    main {
+      height: 83vh;
+      overflow: scroll;
+      -webkit-overflow-scrolling: touch;    
+    }
+    footer.page-foter {
+      background-color: black;
+    }
+
+
+  script.
+    this.mixin('utils'); 
+
+    this.state = {
+      items: [],
+      editMode: false,
+      showCompleted: true
+    }
+
+    ////////// State handling function 
+   this.restoreState = () => {
+      let state = JSON.parse(window.localStorage.getItem("riotToDo"));
+      if(state){
+        this.state = state;
+      }
+    }
+
+    this.persistState = () => {
+      window.localStorage.setItem("riotToDo", JSON.stringify(this.state ))
+    }
+
+    this.on("before-mount", this.restoreState);
+ 
+  
+    ////////// List controler 
+    ////////////////////////////
+    todoControler = {
+      toggleEdit: () => {
+          this.state.editMode = !this.state.editMode
+          this.persistState();
+        },
+      toggleShowCompleted: () => {
+          this.state.showCompleted = !this.state.showCompleted;
+          this.persistState();
+      },
+      toggleComplete: (e) => {
+        //Get index of element that was clicked
+        let index = this.getIndexFromEvent(e);
+        this.state.items[index].done = !this.state.items[index].done
+        this.persistState();
+        },
+
+      add: (text) => {
+          this.state.items.unshift({ text: text, done: false});
+          this.persistState();
+          this.update();
+        },
+      update: (text, index) => {
+          this.state.items[index].text = text;
+          this.persistState();
+          this.update();
+        },
+
+      remove: (e) => {
+          let li = e.target.closest('li');
+          let index = this.getIndexFromEvent(e);
+          li.classList.add("scale-out");
+          
+          setTimeout(() => {
+            li.classList.remove("scale-out");
+            this.state.items.splice(index, 1);
+            this.persistState();
+            this.update();
+            
+          }, 200)
+  
+        },
+
+      move: (from, to) => {
+          this.state.items.splice(to, 0, this.state.items.splice(from, 1)[0]);
+          this.persistState();
+          this.update();
+        }
+    }
+
+    this.todo = todoControler;
+

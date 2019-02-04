@@ -1,0 +1,123 @@
+item-list.z-depth-1
+  .todolist
+    ul(id="todolist").collection
+      li.collection-item.scale-transition(
+        each="{item in this.opts.items}"
+        if="{this.opts.show_completed && item.done || !item.done}")
+        
+        label
+          //Normal view mode, break out to own tag
+          div(if="{!this.opts.edit_mode}")
+            input(type="checkbox", checked="{item.done}", onclick="{this.opts.toggle_complete_cb}")
+            span(class="{done: item.done}", onclick="{edit}") {item.text}
+
+          //Edit mode, break out to own  tag
+          div(if="{this.opts.edit_mode}")
+            a.waves-effect.waves-light.btn-flat(onclick="{this.opts.remove_item_cb}")
+              i.material-icons remove_circle
+            span(class="{done: item.done}", onclick="{edit}") {item.text}
+            a.secondary-content.drag_handle
+              i.material-icons drag_handle
+    
+    //Break out to own tag
+    div#modal.modal(ref="modal")
+      .modal-content
+        form(onsubmit="{saveEdit}")
+          .input-field
+            input(ref="editInput", type="text", id="editItem", value="Text")
+            label(for="editItem") Edit
+
+      .modal-footer
+        a.modal-close.waves-effect.waves-red.btn-flat Cancel  
+        a.modal-close.waves-effect.waves-green.btn-flat( onclick="{saveEdit}") Save  
+    
+    
+    style.
+      ul {
+        height: 100%
+      }
+      .todolist [type="checkbox"]+span.done{
+        text-decoration: line-through;
+        color: #9e9e9e;
+      }
+      .todolist span.done{
+        text-decoration: line-through;
+        color: #9e9e9e;
+      }
+      .todolist .collection .collection-item {
+        line-height: 2.5rem;
+      } 
+      .todolist [type="checkbox"]+span{
+        font-size: 1.3rem;
+        color: black;
+      }
+
+      .todolist span{
+        font-size: 1.3rem;
+        color: black;
+      }
+      .todolist {
+          position: relative;
+          overflow: auto;
+      }
+
+  script.
+    this.mixin("utils");
+
+    this.selectedItemIndex = 0;
+    this.sort = {
+      from: 0,
+      to: 0,
+    };
+
+    this.updateEditMode = () => {
+      if (this.opts.edit_mode) {
+        $( "#todolist" ).sortable( "enable" );
+      } else {
+        $( "#todolist" ).sortable( "disable" );
+      }
+    }
+
+    this.edit = (e) => {
+      if (this.opts.edit_mode) {
+        this.modal.open();
+        this.selectedItemIndex = this.getIndexFromEvent(event);
+        this.refs.editInput.value = e.target.innerHTML;
+        this.refs.editInput.focus();
+      }
+    }
+
+    this.saveEdit = (e) => {
+      this.modal.close();
+      this.opts.update_item_cb(this.refs.editInput.value, this.selectedItemIndex)
+      e.preventDefault();
+
+    }
+
+    this.on("mount", () => {
+      document.addEventListener("touchstart", this.touchHandler, true);
+      document.addEventListener("touchmove", this.touchHandler, true);
+      document.addEventListener("touchend", this.touchHandler, true);
+      document.addEventListener("touchcancel", this.touchHandler, true);    
+      
+      this.modal =  M.Modal.init(this.refs.modal, {});
+
+      $( "#todolist" ).sortable({
+        handle: '.drag_handle',
+        axis: "y",
+        start: ( event, ui ) => {
+          this.sort.from = this.getIndexFromEvent(event.originalEvent);    
+        },
+        stop: ( event, ui ) => {
+          this.sort.to = this.getIndexFromEvent(event.originalEvent);  
+          this.opts.move_item_cb(this.sort.from, this.sort.to);  
+        },
+      });
+
+      $( "#todolist" ).disableSelection();
+      this.updateEditMode();
+    })
+
+    this.on("update", () => {
+      this.updateEditMode();
+    })
