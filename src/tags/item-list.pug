@@ -3,7 +3,7 @@ item-list.z-depth-1
     ul(id="todolist").collection
       li.collection-item.scale-transition(
         each="{item in this.opts.items}"
-        if="{this.opts.show_completed && item.done || !item.done}")
+        show="{this.opts.show_completed && item.done || !item.done}")
         
         label
           //Normal view mode, break out to own tag
