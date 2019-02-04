@@ -14,7 +14,7 @@ item-list.z-depth-1
           //Edit mode, break out to own  tag
           div(if="{this.opts.edit_mode}")
             a.waves-effect.waves-light.btn-flat(onclick="{this.opts.remove_item_cb}")
-              i.material-icons remove_circle
+              i.material-icons.red-text remove_circle
             span(class="{done: item.done}", onclick="{edit}") {item.text}
             a.secondary-content.drag_handle
               i.material-icons drag_handle
@@ -34,7 +34,8 @@ item-list.z-depth-1
     
     style.
       ul {
-        height: 100%
+        height: 100%;
+        overflow: visible;
       }
       .todolist [type="checkbox"]+span.done{
         text-decoration: line-through;
